@@ -1,10 +1,10 @@
 # PayWeb_Zen_Cart
-## DPO PayGate Zen Cart plugin v1.0.3 for Zen Cart v1.5.5
+## PayGate Zen Cart plugin v1.0.3 for Zen Cart v1.5.5
 
-This is the DPO PayGate PayWeb3 plugin for Zen Cart. Please feel free to contact the DPO PayGate support team at support@paygate.co.za should you require any assistance.
+This is the PayGate PayWeb3 plugin for Zen Cart. Please feel free to contact the PayGate support team at support@paygate.co.za should you require any assistance.
 
 ## Installation
-[![How To Setup DPO | PayGate PayWeb for ZenCart](https://www.appinlet.com/wp-content/uploads/2018/09/ZenCart-Integration.jpg)](http://www.youtube.com/watch?v=AUGkcxVzeFo "How To Setup DPO | PayGate PayWeb for ZenCart")
+[![How To Setup PayGate PayWeb for ZenCart](https://www.appinlet.com/wp-content/uploads/2018/09/ZenCart-Integration.jpg)](http://www.youtube.com/watch?v=AUGkcxVzeFo "How To Setup PayGate PayWeb for ZenCart")
 
 Please navigate to the [releases page](https://github.com/PayGate/PayWeb_Zen_Cart/releases), download the latest release (v1.0.3) and unzip. You will them be able to follow the integration guide PDF which is included in the zip.
 
