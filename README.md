@@ -6,7 +6,7 @@ This is the PayGate PayWeb3 plugin for Zen Cart. Please feel free to contact the
 ## Installation
 [![How To Setup PayGate PayWeb for ZenCart](https://www.appinlet.com/wp-content/uploads/2018/09/ZenCart-Integration.jpg)](http://www.youtube.com/watch?v=AUGkcxVzeFo "How To Setup PayGate PayWeb for ZenCart")
 
-Please navigate to the [releases page](https://github.com/PayGate/PayWeb_Zen_Cart/releases), download the latest release (v1.0.3) and unzip. You will them be able to follow the integration guide PDF which is included in the zip.
+Please navigate to the [releases page](https://github.com/PayGate/PayWeb_Zen_Cart/releases), download the latest release (v1.0.3) and unzip. You will then be able to follow the integration guide PDF which is included in the zip.
 
 ## Collaboration
 
