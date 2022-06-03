@@ -1,0 +1,7 @@
+Date            Version     Comment
+****            *******     *******
+
+2022-06-02      1.0.4       Code quality fixes and improvements.
+                            Patch for ZenCart 1.5.7.
+
+2018-08-24      1.0.3       New release of legacy plugin.
