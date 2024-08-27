@@ -1,16 +1,16 @@
 <?php
 /**
- * Copyright (c) 2022 PayGate (Pty) Ltd
+ * Copyright (c) 2024 Payfast (Pty) Ltd
  *
  * Author: App Inlet (Pty) Ltd
  *
  * Released under the GNU General Public License
  */
 
-define('MODULE_PAYMENT_PAYGATEPAYWEB3_TEXT_TITLE', 'PayGate');
+define('MODULE_PAYMENT_PAYGATEPAYWEB3_TEXT_TITLE', 'Paygate');
 define(
     'MODULE_PAYMENT_PAYGATEPAYWEB3_TEXT_DESCRIPTION',
-    '<b>PayWebv3</b><br><br>Credit Card Test Info:<br><br>CC#: 4000000000000002<br>Expiry: 06/2020'
+    '<b>Paygate</b>'
 );
 define(
     'MODULE_PAYMENT_PAYGATEPAYWEB3_TEXT_ERROR_MESSAGE',
@@ -22,6 +22,6 @@ define(
 );
 define(
     'MODULE_PAYMENT_PAYGATEPAYWEB3_TEXT_DECLINED_MESSAGE',
-    'Your payment could not be authorised for the following reason: '
+    'Your payment could not be authorised. Please try again with another payment method.'
 );
 define('MODULE_PAYMENT_PAYGATEPAYWEB3_TEXT_ERROR', 'Payment Error!');
