@@ -2,17 +2,15 @@
 /**
  * Module to process a completed checkout
  *
- * Copyright (c) 2022 PayGate (Pty) Ltd
+ * Copyright (c) 2024 Payfast (Pty) Ltd
  *
  * Author: App Inlet (Pty) Ltd
  *
  * Released under the GNU General Public License
  */
 
-if ( ! defined('IS_ADMIN_FLAG')) {
-    // phpcs:disable
+if (!defined('IS_ADMIN_FLAG')) {
     die('Illegal Access');
-    // phpcs:enable
 }
 global $zco_notifier;
 $zco_notifier->notify('NOTIFY_CHECKOUT_PROCESS_BEGIN');
@@ -21,10 +19,8 @@ require DIR_WS_MODULES . zen_get_module_directory('require_languages.php');
 
 global $db, $currencies;
 
-if ( ! defined('TABLE_PAYGATEPAYWEBV3')) {
-    // phpcs:disable
+if (!defined('TABLE_PAYGATEPAYWEBV3')) {
     define('TABLE_PAYGATEPAYWEBV3', DB_PREFIX . 'paygatepaywebv3');
-    // phpcs:enable
 }
 
 if (isset($_POST) && isset($_POST['PAY_REQUEST_ID'])) {
@@ -78,8 +74,8 @@ if (isset($_POST) && isset($_POST['PAY_REQUEST_ID'])) {
 
         $processThisOrder = false;
 
-        $validRedirectMethod = ! $pw3->getUseipn();
-        $validNotifyMethod   = ! isset($_GET['uuid']) && $pw3->getUseipn();
+        $validRedirectMethod = !$pw3->getUseipn();
+        $validNotifyMethod   = isset($_GET['uuid']) && $pw3->getUseipn();
 
         if ($validRedirectMethod || $validNotifyMethod) {
             $processThisOrder = true;
@@ -102,8 +98,16 @@ if (isset($_POST) && isset($_POST['PAY_REQUEST_ID'])) {
             $_SESSION['order_number_created'] = $insert_id;
             $zco_notifier->notify('NOTIFY_CHECKOUT_PROCESS_AFTER_ORDER_CREATE_ADD_PRODUCTS');
             //send email notifications
-            $order->send_order_email($insert_id, 2);
             $zco_notifier->notify('NOTIFY_CHECKOUT_PROCESS_AFTER_SEND_ORDER_EMAIL');
+        } else {
+            global $messageStack;
+
+            $messageStack->add_session(
+                'checkout_payment',
+                MODULE_PAYMENT_PAYGATEPAYWEB3_TEXT_DECLINED_MESSAGE,
+                'error'
+            );
+            zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, '', 'SSL', true, false));
         }
     }
 }

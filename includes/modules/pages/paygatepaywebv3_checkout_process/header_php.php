@@ -2,9 +2,9 @@
 /**
  * Checkout Process Page
  *
- * Modified for PayGate PayWeb3 session issues
+ * Modified for Paygate session issues
  *
- * Copyright (c) 2022 PayGate (Pty) Ltd
+ * Copyright (c) 2024 Payfast (Pty) Ltd
  *
  * Author: App Inlet (Pty) Ltd
  *

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2022 PayGate (Pty) Ltd
+ * Copyright (c) 2024 Payfast (Pty) Ltd
  *
  * Author: App Inlet (Pty) Ltd
  *
@@ -8,21 +8,30 @@
  */
 
 // ##################################################################################
-// Title                     : PayGate South Africa ZenCart Payment Module
+// Title                     : Paygate South Africa ZenCart Payment Module
 //                             Uses the PayWeb3 interface
-// Version                   : 1.0.4
+// Version                   : 1.0.5
 // Author                    : App Inlet (Pty) Ltd
-// Last modification date    : 2022-05
-// Notes                     : A payment module extenstion for ZenCart.
-//                             You will require a PayGate account to make use of this
+// Last modification date    : 2024-06
+// Notes                     : A payment module extension for ZenCart.
+//                             You will require a Paygate account to make use of this
 //                             module in a live environment.
 //                             Visit www.paygate.co.za for more info.
 // ##################################################################################
 
-// phpcs:ignore
+
 class PaygatePaywebV3 extends Paygate
 {
-    public $code, $title, $description, $enabled, $sort_order, $order_status, $form_action_url, $testmode, $useipn, $_check;
+    public string $code;
+    public string $title;
+    public string $description;
+    public bool $enabled;
+    public $sort_order;
+    public int $order_status;
+    public string $form_action_url;
+    public bool $testmode;
+    public bool $useipn;
+    public $_check;
 
     // class constructor
     public function __construct()
@@ -32,15 +41,25 @@ class PaygatePaywebV3 extends Paygate
         $this->code        = 'paygatepaywebv3';
         $this->title       = MODULE_PAYMENT_PAYGATEPAYWEB3_TEXT_TITLE;
         $this->description = MODULE_PAYMENT_PAYGATEPAYWEB3_TEXT_DESCRIPTION;
-        $this->sort_order  = MODULE_PAYMENT_PAYGATEPAYWEB3_SORT_ORDER;
-        $this->enabled     = ((MODULE_PAYMENT_PAYGATEPAYWEB3_STATUS == 'True') ? true : false);
+        $this->sort_order  = defined(
+            'MODULE_PAYMENT_PAYGATEPAYWEB3_SORT_ORDER'
+        ) ? MODULE_PAYMENT_PAYGATEPAYWEB3_SORT_ORDER : null;
+        $this->enabled     = (defined(
+                'MODULE_PAYMENT_PAYGATEPAYWEB3_STATUS'
+            ) ? MODULE_PAYMENT_PAYGATEPAYWEB3_STATUS : false) == 'True';
 
-        $this->testmode = MODULE_PAYMENT_PAYGATEPAYWEB3_TESTMODE === 'True';
-        $this->useipn   = MODULE_PAYMENT_PAYGATEPAYWEB3_USEIPN === 'True';
+        $this->testmode = (defined(
+                'MODULE_PAYMENT_PAYGATEPAYWEB3_TESTMODE'
+            ) ? MODULE_PAYMENT_PAYGATEPAYWEB3_TESTMODE : false) === 'True';
+        $this->useipn   = (defined(
+                'MODULE_PAYMENT_PAYGATEPAYWEB3_SORT_ORDER'
+            ) ? MODULE_PAYMENT_PAYGATEPAYWEB3_USEIPN : false) === 'True';
 
-        if ((int)MODULE_PAYMENT_PAYGATEPAYWEB3_ORDER_STATUS_ID > 0) {
-            $this->order_status = MODULE_PAYMENT_PAYGATEPAYWEB3_ORDER_STATUS_ID;
-        }
+        $orderStatusId = defined(
+            'MODULE_PAYMENT_PAYGATEPAYWEB3_SORT_ORDER'
+        ) ? MODULE_PAYMENT_PAYGATEPAYWEB3_ORDER_STATUS_ID : 0;
+
+        $this->order_status = $orderStatusId;
 
         if (is_object($order)) {
             $this->update_status();
@@ -49,7 +68,7 @@ class PaygatePaywebV3 extends Paygate
         $this->form_action_url = 'https://secure.paygate.co.za/payweb3/process.trans';
     }
 
-    // phpcs:ignore
+
     public function update_status()
     {
         global $order, $db;
@@ -57,22 +76,28 @@ class PaygatePaywebV3 extends Paygate
         if (($this->enabled) && ((int)MODULE_PAYMENT_PAYGATEPAYWEB3_ZONE > 0)) {
             $check_flag = "";
             $check      = $db->Execute(
-                "select zone_id from " . TABLE_ZONES_TO_GEO_ZONES . " where geo_zone_id = '" . MODULE_PAYMENT_PAYGATEPAYWEB3_ZONE . "' and zone_country_id = '" . $order->billing['country']['id'] . "' order by zone_id"
+                "select zone_id from "
+                . TABLE_ZONES_TO_GEO_ZONES
+                . " where geo_zone_id = '"
+                . MODULE_PAYMENT_PAYGATEPAYWEB3_ZONE
+                . "' and zone_country_id = '"
+                . $order->billing['country']['id']
+                . "' order by zone_id"
             );
-            while ( ! $check->EOF) {
+            while (!$check->EOF) {
                 if ($check->Fields['zone_id'] < 1 || ($check->Fields['zone_id'] == $order->billing['zone_id'])) {
                     $check_flag = true;
                     break;
                 }
             }
 
-            if ( ! $check_flag) {
+            if (!$check_flag) {
                 $this->enabled = false;
             }
         }
     }
 
-    // phpcs:ignore
+
     public function javascript_validation()
     {
         return false;
@@ -86,37 +111,37 @@ class PaygatePaywebV3 extends Paygate
         );
     }
 
-    // phpcs:ignore
+
     public function pre_confirmation_check()
     {
         return false;
     }
 
-    public function confirmation()
+    public function confirmation(): bool
     {
         return false;
     }
 
     /**
-     * Initiate payment request to PayGate PayWeb
+     * Initiate payment request to Paygate PayWeb
      * and then redirect to payment portal
      *
      * @return string
      */
-    // phpcs:ignore
+
     public function process_button()
     {
         global $order, $db;
 
         $this->define_table();
 
-        $pgPayGateID            = MODULE_PAYMENT_PAYGATEPAYWEB3_PAYGATEID;
+        $pgPayGateID            = $this->testmode ? 10011072130 : MODULE_PAYMENT_PAYGATEPAYWEB3_PAYGATEID;
         $_SESSION['PAYGATE_ID'] = $pgPayGateID;
         $pgReference            = $this->createUUID();
-        $pgAmount               = (string)((int)($order->info['total'] * 100));
+        $pgAmount               = (string)((int)(ceil($order->info['total']) * 100));
         $pgCurrency             = $order->info['currency'];
         $pgReturnURL            = zen_href_link('paygatepaywebv3_checkout_process');
-        $pgTransactionDate      = gmstrftime("%Y-%m-%d %H:%M");
+        $pgTransactionDate      = date('Y-m-d H:M', time());
         $pgCustomerEmail        = $order->customer['email_address'];
         $pgNotifyURL            = $pgReturnURL;
 
@@ -141,9 +166,9 @@ class PaygatePaywebV3 extends Paygate
             $fields['NOTIFY_URL'] = $pgNotifyURL;
         }
 
-        $fields['USER3'] = 'zencart-v1.0.4';
+        $fields['USER3'] = 'zencart-v1.0.5';
 
-        $fields['CHECKSUM'] = md5(implode('', $fields) . MODULE_PAYMENT_PAYGATEPAYWEB3_ENCRYPTIONKEY);
+        $fields['CHECKSUM'] = md5(implode('', $fields) . ($this->testmode ? 'secret' : MODULE_PAYMENT_PAYGATEPAYWEB3_ENCRYPTIONKEY));
 
         $response = $this->curlPost('https://secure.paygate.co.za/payweb3/initiate.trans', $fields);
         parse_str($response, $fields);
@@ -152,7 +177,7 @@ class PaygatePaywebV3 extends Paygate
             // Store the session data
             $customer_id = isset($_SESSION['customer_id']) ? $_SESSION['customer_id'] : null;
             if ($customer_id) {
-                if ( ! defined('TABLE_PAYGATEPAYWEBV3')) {
+                if (!defined('TABLE_PAYGATEPAYWEBV3')) {
                     define('TABLE_PAYGATEPAYWEBV3', DB_PREFIX . 'paygatepaywebv3');
                 }
                 $sql = self::INSERT_STMT . TABLE_PAYGATEPAYWEBV3 . " (";
@@ -165,7 +190,7 @@ class PaygatePaywebV3 extends Paygate
                 $db->Execute($sql);
             }
 
-            // The process_button_string contains the form that is sent to PayGate.
+            // The process_button_string contains the form that is sent to Paygate.
             return zen_draw_hidden_field('PAY_REQUEST_ID', $fields['PAY_REQUEST_ID']) .
                    zen_draw_hidden_field('CHECKSUM', $fields['CHECKSUM']);
         }
@@ -173,28 +198,28 @@ class PaygatePaywebV3 extends Paygate
         return '';
     }
 
-    // phpcs:ignore
+
     public function getOrderStatus()
     {
         return $this->order_status;
     }
 
-    // phpcs:ignore
+
     public function getUseipn()
     {
         return $this->useipn;
     }
 
     /**
-     * Redirect from PayGate portal after payment
+     * Redirect from Paygate portal after payment
      * Handles notify response from portal as well
      *
      * Query and verify the transaction status before after_process is run
      */
-    // phpcs:ignore
+
     public function before_process()
     {
-        global $db, $order;
+        global $messageStack, $db, $order;
         $GLOBALS['IS_PAYGATE_NOTIFY'] = false;
 
         $this->define_table();
@@ -208,11 +233,11 @@ class PaygatePaywebV3 extends Paygate
         } else {
             // Follow up transaction
             $fields             = array(
-                'PAYGATE_ID'     => MODULE_PAYMENT_PAYGATEPAYWEB3_PAYGATEID,
-                'PAY_REQUEST_ID' => filter_var($_POST['PAY_REQUEST_ID'], FILTER_SANITIZE_STRING),
-                'REFERENCE'      => filter_var($_GET['uuid'], FILTER_SANITIZE_STRING),
+                'PAYGATE_ID'     => $this->testmode ? 10011072130 : MODULE_PAYMENT_PAYGATEPAYWEB3_PAYGATEID,
+                'PAY_REQUEST_ID' => filter_var($_POST['PAY_REQUEST_ID'], FILTER_SANITIZE_FULL_SPECIAL_CHARS),
+                'REFERENCE'      => filter_var($_GET['uuid'], FILTER_SANITIZE_FULL_SPECIAL_CHARS),
             );
-            $fields['CHECKSUM'] = md5(implode('', $fields) . MODULE_PAYMENT_PAYGATEPAYWEB3_ENCRYPTIONKEY);
+            $fields['CHECKSUM'] = md5(implode('', $fields) . ($this->testmode ? 'secret' : MODULE_PAYMENT_PAYGATEPAYWEB3_ENCRYPTIONKEY));
             $response           = $this->curlPost('https://secure.paygate.co.za/payweb3/query.trans', $fields);
             parse_str($response, $fields);
         }
@@ -242,8 +267,6 @@ class PaygatePaywebV3 extends Paygate
                 include_once DIR_WS_CLASSES . 'shopping_cart.php';
                 $cart = new shoppingCart();
                 $cart->reset(true);
-            } elseif ($fields['TRANSACTION_STATUS'] == 2) {
-                zen_redirect(zen_href_link('declined_transaction', 'status=2', 'SSL', true, false));
             } elseif ($fields['TRANSACTION_STATUS'] == 4) {
                 zen_redirect(
                     zen_href_link(
@@ -254,106 +277,121 @@ class PaygatePaywebV3 extends Paygate
                         false
                     )
                 );
-            } else {
-                zen_redirect(zen_href_link('declined_transaction', 'status=9', 'SSL', true, false));
             }
         }
     }
 
-    // phpcs:ignore
-    public function define_table()
+
+    public function define_table(): void
     {
-        if ( ! defined('TABLE_PAYGATEPAYWEBV3')) {
+        if (!defined('TABLE_PAYGATEPAYWEBV3')) {
             define('TABLE_PAYGATEPAYWEBV3', DB_PREFIX . 'paygatepaywebv3');
         }
     }
 
-    // phpcs:ignore
+
     public function after_process()
     {
-        global $insert_id, $db, $order, $currencies;
+        global $messageStack, $insert_id, $db, $order, $currencies;
 
         $this->define_table();
 
-        $sql     = "select * from " . TABLE_PAYGATEPAYWEBV3 . " where pay_request_id = :id";
-        $sql     = $db->bindVars($sql, ':id', $GLOBALS['PAY_REQUEST_ID'], 'string');
-        $rec     = $db->Execute($sql);
-        $records = [];
-        foreach ($rec as $r) {
-            $records[] = $r;
+        if (isset($GLOBALS['PAY_REQUEST_ID'])) {
+            $payRequestID = $GLOBALS['PAY_REQUEST_ID'];
+            $sql          = "select * from " . TABLE_PAYGATEPAYWEBV3 . " where pay_request_id = :id";
+            $sql          = $db->bindVars($sql, ':id', $payRequestID, 'string');
+            $rec          = $db->Execute($sql);
+            $records      = [];
+            foreach ($rec as $r) {
+                $records[] = $r;
+            }
+            $record = $records[0];
+
+            if ((int)$record['orders_id'] === 0 && (int)$insert_id != 0 && ((int)$record['orders_notified'] != 1)) {
+                // This response has not yet been processed
+                $subject = "Paygate processed zen-cart order, OrderID: " . $insert_id;
+                $message = "Order has been " . $GLOBALS['PAYGATE_TRANSACTION_STATUS_DESC'] . "\n" .
+                           "\n" .
+                           "The order details are:\n" .
+                           "Order Number: " . $insert_id . "\n" .
+                           "Paygate Transaction Reference: " . $GLOBALS['PAYGATE_REFERENCE'] . "\n" .
+                           "Processed Amount: " . number_format((int)$GLOBALS['PAYGATE_AMOUNT'] / 100, 2) . "\r\n";
+
+                $result_code   = $GLOBALS['RESULT_CODE'];
+                $orders_status = Paygate::validate_order_status($result_code);
+
+                $sql    = self::UPDATE_STMT . " " . TABLE_PAYGATEPAYWEBV3;
+                $sql    .= " set orders_id = :orders_id, ";
+                $notify = $GLOBALS['IS_PAYGATE_NOTIFY'];
+                $sql    .= Paygate::checkIsNotified($notify);
+                $sql    .= "orders_status = :orders_status ";
+                $sql    .= "where pay_request_id = :pay_request_id";
+                $sql    = $db->bindVars($sql, ':orders_id', $insert_id, 'integer');
+                $sql    = $db->bindVars($sql, ':orders_status', $orders_status, 'integer');
+                $sql    = $db->bindVars($sql, ':pay_request_id', $payRequestID, 'string');
+                $db->Execute($sql);
+
+                $sql = self::UPDATE_STMT
+                       . " "
+                       . TABLE_ORDERS
+                       . " set orders_status = :orders_status where orders_id = :orders_id";
+                $sql = $db->bindVars(
+                    $sql,
+                    ':orders_status',
+                    $orders_status,
+                    'integer'
+                );
+                $sql = $db->bindVars(
+                    $sql,
+                    ':orders_id',
+                    $insert_id,
+                    'integer'
+                );
+                $db->Execute($sql);
+
+                $sql = self::INSERT_STMT . TABLE_ORDERS_STATUS_HISTORY . " (comments, orders_id, orders_status_id, customer_notified, date_added) values (:orderComments, :orderID, :orderStatus, -1, now() )";
+
+                $orderComments = 'refrenceID: '
+                                 . $GLOBALS['PAYGATE_REFERENCE']
+                                 . ' RESULT_DESC: '
+                                 . $GLOBALS['RESULT_DESC']
+                                 . ' RESULT_CODE: '
+                                 . $GLOBALS['RESULT_CODE']
+                                 . ' AUTH_CODE: '
+                                 . $GLOBALS['AUTH_CODE']
+                                 . ' PAY_METHOD: '
+                                 . $GLOBALS['PAY_METHOD']
+                                 . ' PAY_METHOD_DETAIL: '
+                                 . $GLOBALS['PAY_METHOD_DETAIL'];
+
+                $notify        = $GLOBALS['IS_PAYGATE_NOTIFY'];
+                $orderComments = Paygate::validate_globals($notify, $orderComments);
+
+                $sql = $db->bindVars(
+                    $sql,
+                    ':orderComments',
+                    $orderComments,
+                    'string'
+                );
+                $sql = $db->bindVars($sql, ':orderID', $insert_id, 'integer');
+                $sql = $db->bindVars($sql, ':orderStatus', $orders_status, 'integer');
+                $db->Execute($sql);
+            }
         }
-        $record = $records[0];
 
-        if ((int)$record['orders_id'] === 0 && (int)$insert_id != 0 && ((int)$record['orders_notified'] != 1)) {
-            // This response has not yet been processed
-            $subject = "PayGate processed zen-cart order, OrderID: " . $insert_id;
-            $message = "Order has been " . $GLOBALS['PAYGATE_TRANSACTION_STATUS_DESC'] . "\n" .
-                       "\n" .
-                       "The order details are:\n" .
-                       "Order Number: " . $insert_id . "\n" .
-                       "PayGate Transaction Reference: " . $GLOBALS['PAYGATE_REFERENCE'] . "\n" .
-                       "Processed Amount: " . number_format((int)$GLOBALS['PAYGATE_AMOUNT'] / 100, 2) . "\r\n";
-
-            $result_code   = $GLOBALS['RESULT_CODE'];
-            $orders_status = Paygate::validate_order_status($result_code);
-
-            $sql    = self::UPDATE_STMT . " " . TABLE_PAYGATEPAYWEBV3;
-            $sql    .= " set orders_id = :orders_id, ";
-            $notify = $GLOBALS['IS_PAYGATE_NOTIFY'];
-            $sql    .= Paygate::checkIsNotified($notify);
-            $sql    .= "orders_status = :orders_status ";
-            $sql    .= "where pay_request_id = :pay_request_id";
-            $sql    = $db->bindVars($sql, ':orders_id', $insert_id, 'integer');
-            $sql    = $db->bindVars($sql, ':orders_status', $orders_status, 'integer');
-            $sql    = $db->bindVars($sql, ':pay_request_id', $GLOBALS['PAY_REQUEST_ID'], 'integer');
-            $db->Execute($sql);
-
-            $sql = self::UPDATE_STMT . " " . TABLE_ORDERS . " set orders_status = :orders_status where orders_id = :orders_id";
-            $sql = $db->bindVars(
-                $sql,
-                ':orders_status',
-                $orders_status,
-                'integer'
+        if ($_POST['TRANSACTION_STATUS'] === '2') {
+            $messageStack->add_session(
+                'checkout_payment',
+                MODULE_PAYMENT_PAYGATEPAYWEB3_TEXT_DECLINED_MESSAGE,
+                'error'
             );
-            $sql = $db->bindVars(
-                $sql,
-                ':orders_id',
-                $insert_id,
-                'integer'
-            );
-            $db->Execute($sql);
-
-            $sql = self::INSERT_STMT . TABLE_ORDERS_STATUS_HISTORY . " (comments, orders_id, orders_status_id, customer_notified, date_added) values (:orderComments, :orderID, :orderStatus, -1, now() )";
-
-            $orderComments = 'refrenceID: ' . $GLOBALS['PAYGATE_REFERENCE'] . ' RESULT_DESC: ' . $GLOBALS['RESULT_DESC'] . ' RESULT_CODE: ' . $GLOBALS['RESULT_CODE'] . ' AUTH_CODE: ' . $GLOBALS['AUTH_CODE'] . ' PAY_METHOD: ' . $GLOBALS['PAY_METHOD'] . ' PAY_METHOD_DETAIL: ' . $GLOBALS['PAY_METHOD_DETAIL'];
-
-            $notify        = $GLOBALS['IS_PAYGATE_NOTIFY'];
-            $orderComments = Paygate::validate_globals($notify, $orderComments);
-
-            $sql = $db->bindVars(
-                $sql,
-                ':orderComments',
-                $orderComments,
-                'string'
-            );
-            $sql = $db->bindVars($sql, ':orderID', $insert_id, 'integer');
-            $sql = $db->bindVars($sql, ':orderStatus', $orders_status, 'integer');
-            $db->Execute($sql);
-
-            zen_mail(
-                '',
-                MODULE_PAYMENT_PAYGATEPAYWEB3_AUTH_EMAIL,
-                $subject,
-                $message,
-                STORE_OWNER,
-                STORE_OWNER_EMAIL_ADDRESS
-            );
+            zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, '', 'SSL', true, false));
         }
 
         return false;
     }
 
-    // phpcs:ignore
+
     public function get_error()
     {
         return array(
@@ -365,9 +403,11 @@ class PaygatePaywebV3 extends Paygate
     public function check()
     {
         global $db;
-        if ( ! isset($this->_check)) {
+        if (!isset($this->_check)) {
             $check_query  = $db->Execute(
-                "select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'MODULE_PAYMENT_PAYGATEPAYWEB3_STATUS'"
+                "select configuration_value from "
+                . TABLE_CONFIGURATION
+                . " where configuration_key = 'MODULE_PAYMENT_PAYGATEPAYWEB3_STATUS'"
             );
             $this->_check = $check_query->RecordCount();
         }
@@ -375,7 +415,7 @@ class PaygatePaywebV3 extends Paygate
         return $this->_check;
     }
 
-    public function install()
+    public function install(): void
     {
         global $db;
 
@@ -383,8 +423,8 @@ class PaygatePaywebV3 extends Paygate
         $insert_stmt                = self::INSERT_STMT . TABLE_CONFIGURATION;
 
         $queries = array(
-            " ($common_configuration_field, set_function, date_added) values ('Enable PayGate PayWeb3 Module', 'MODULE_PAYMENT_PAYGATEPAYWEB3_STATUS', 'True', 'Do you want to accept PayGate payments?', '6', '0', 'zen_cfg_select_option(array(\'True\', \'False\'), ', now())",
-            " ($common_configuration_field, date_added) values ('PayGate ID', 'MODULE_PAYMENT_PAYGATEPAYWEB3_PAYGATEID', '10011072130', 'Your PayGate ID', '6', '0', now())",
+            " ($common_configuration_field, set_function, date_added) values ('Enable Paygate Module', 'MODULE_PAYMENT_PAYGATEPAYWEB3_STATUS', 'True', 'Do you want to accept Paygate payments?', '6', '0', 'zen_cfg_select_option(array(\'True\', \'False\'), ', now())",
+            " ($common_configuration_field, date_added) values ('Paygate ID', 'MODULE_PAYMENT_PAYGATEPAYWEB3_PAYGATEID', '10011072130', 'Your Paygate ID', '6', '0', now())",
             " ($common_configuration_field, date_added) values ('Encryption Key', 'MODULE_PAYMENT_PAYGATEPAYWEB3_ENCRYPTIONKEY', 'secret', 'Your Encryption Key; this must be identical to the Encryption Key on the BackOffice', '6', '0', now())",
             " ($common_configuration_field, set_function, date_added) values ('Enable Test Mode', 'MODULE_PAYMENT_PAYGATEPAYWEB3_TESTMODE', 'False', 'Do you want to enable test mode (sandbox)?', '6', '0', 'zen_cfg_select_option(array(\'True\', \'False\'), ', now())",
             " ($common_configuration_field, set_function, date_added) values ('Enable IPN', 'MODULE_PAYMENT_PAYGATEPAYWEB3_USEIPN', 'True', 'Enables IPN, otherwise uses redirect order response', '6', '0', 'zen_cfg_select_option(array(\'True\', \'False\'), ', now())",
@@ -401,8 +441,8 @@ class PaygatePaywebV3 extends Paygate
             );
         }
 
-        // Table for storing PayGate customer / session data
-        if ( ! defined('TABLE_PAYGATEPAYWEBV3')) {
+        // Table for storing Paygate customer / session data
+        if (!defined('TABLE_PAYGATEPAYWEBV3')) {
             define('TABLE_PAYGATEPAYWEBV3', DB_PREFIX . 'paygatepaywebv3');
         }
         $sql = "create table if not exists " . TABLE_PAYGATEPAYWEBV3 . "(";
@@ -417,7 +457,7 @@ class PaygatePaywebV3 extends Paygate
         $db->Execute($sql);
     }
 
-    public function remove()
+    public function remove(): void
     {
         global $db;
         $db->Execute(
@@ -427,7 +467,7 @@ class PaygatePaywebV3 extends Paygate
             ) . "')"
         );
 
-        if ( ! defined('TABLE_PAYGATEPAYWEBV3')) {
+        if (!defined('TABLE_PAYGATEPAYWEBV3')) {
             define('TABLE_PAYGATEPAYWEBV3', DB_PREFIX . 'paygatepaywebv3');
         }
         $db->Execute("drop table if exists " . TABLE_PAYGATEPAYWEBV3);
@@ -440,9 +480,9 @@ class PaygatePaywebV3 extends Paygate
      *
      * @see http://www.php.net/manual/en/function.uniqid.php#69164
      */
-    public function createUUID()
+    public function createUUID(): string
     {
-        $uuid = sprintf(
+        return sprintf(
             '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
             mt_rand(0, 0xffff),
             mt_rand(0, 0xffff),
@@ -453,11 +493,9 @@ class PaygatePaywebV3 extends Paygate
             mt_rand(0, 0xffff),
             mt_rand(0, 0xffff)
         );
-
-        return ($uuid);
     }
 
-    public function keys()
+    public function keys(): array
     {
         return array(
             'MODULE_PAYMENT_PAYGATEPAYWEB3_STATUS',
@@ -474,15 +512,15 @@ class PaygatePaywebV3 extends Paygate
     }
 }
 
-if ( ! class_exists(base)) {
-    // phpcs:ignore
+if (!class_exists('base')) {
+
     class base
     {
         // Fallback if base class unknown
     }
 }
 
-// phpcs:ignore
+
 class Paygate extends base
 {
     const CUSTOMER_ID = ":customer_id";
@@ -493,7 +531,7 @@ class Paygate extends base
     public function check()
     {
         global $db;
-        if ( ! isset($this->_check)) {
+        if (!isset($this->_check)) {
             $check_query  = $db->Execute(
                 "select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'MODULE_PAYMENT_PAYGATEPAYWEB3_STATUS'"
             );
@@ -503,7 +541,7 @@ class Paygate extends base
         return $this->_check;
     }
 
-    // phpcs:ignore
+
     public function validate_checksum()
     {
         echo 'OK';
@@ -526,19 +564,19 @@ class Paygate extends base
         return $fields;
     }
 
-    // phpcs:ignore
+
     public function filter_sanitize_post()
     {
         // Sanitise $_POST
         $post = [];
         foreach ($_POST as $key => $item) {
-            $post[$key] = filter_var($item, FILTER_SANITIZE_STRING);
+            $post[$key] = filter_var($item, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         }
 
         return $post;
     }
 
-    // phpcs:ignore
+
     public function validate_globals($notify, $orderComments)
     {
         if ($notify) {
@@ -550,8 +588,8 @@ class Paygate extends base
         return $orderComments;
     }
 
-    // phpcs:ignore
-    public function validate_order_status($result_code)
+
+    public function validate_order_status($result_code): int
     {
         if ($result_code == '990017') {
             return 2;

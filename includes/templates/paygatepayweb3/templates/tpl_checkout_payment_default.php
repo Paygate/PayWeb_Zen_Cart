@@ -5,17 +5,15 @@
  * Loaded automatically by index.php?main_page=checkout_payment.<br />
  * Displays the allowed payment modules, for selection by customer.
  *
- * Copyright (c) 2022 PayGate (Pty) Ltd
+ * Copyright (c) 2024 Payfast (Pty) Ltd
  *
  * Author: App Inlet (Pty) Ltd
  *
  * Released under the GNU General Public License
  */
 
-// phpcs:disable
 echo $payment_modules->javascript_validation();
 $Paygate = new Paygate();
-// phpcs:enable
 
 ?>
 <div class="centerColumn" id="checkoutPayment">
@@ -41,7 +39,7 @@ $Paygate = new Paygate();
     } ?>
 
     <?php
-    if ( ! $payment_modules->in_special_checkout()) {
+    if (!$payment_modules->in_special_checkout()) {
         ?>
         <h2 id="checkoutPaymentHeadingAddress"><?php
             echo TITLE_BILLING_ADDRESS; ?></h2>
@@ -88,9 +86,11 @@ $Paygate = new Paygate();
 
     <?php
     $selection = $order_total_modules->credit_selection();
-    if ( ! empty($selection)) {
+    if (!empty($selection)) {
         for ($i = 0, $n = sizeof($selection); $i < $n; $i++) {
-            if (isset($_GET['credit_class_error_code']) && ($_GET['credit_class_error_code'] == (isset($selection[$i]['id'])) ? $selection[$i]['id'] : 0)) {
+            if (isset($_GET['credit_class_error_code']) &&
+                ($_GET['credit_class_error_code'] == (isset($selection[$i]['id']))
+                    ? $selection[$i]['id'] : 0)) {
                 ?>
                 <div class="messageStackError"><?php
                     echo zen_output_string_protected($_GET['credit_class_error']); ?></div>
@@ -111,7 +111,9 @@ $Paygate = new Paygate();
                     <div class="gvBal larger"><?php
                         echo (isset($selection[$i]['checkbox'])) ? $selection[$i]['checkbox'] : ''; ?></div>
                     <label class="inputLabel"<?php
-                    echo ($selection[$i]['fields'][$j]['tag']) ? ' for="' . $selection[$i]['fields'][$j]['tag'] . '"' : ''; ?>><?php
+                    echo ($selection[$i]['fields'][$j]['tag'])
+                        ? ' for="' . $selection[$i]['fields'][$j]['tag'] . '"' : ''; ?>>
+                        <?php
                         echo $selection[$i]['fields'][$j]['title']; ?></label>
                     <?php
                     echo $selection[$i]['fields'][$j]['field']; ?>
