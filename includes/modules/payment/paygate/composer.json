@@ -1,0 +1,6 @@
+{
+    "require": {
+        "ramsey/uuid": "^4.7",
+        "payfast/payfast-common": "1.4.0"
+    }
+}

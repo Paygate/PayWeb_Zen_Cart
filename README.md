@@ -1,6 +1,6 @@
 # PayWeb_Zen_Cart
 
-## Paygate Zen Cart plugin v1.0.6 for Zen Cart v2.0.1
+## Paygate Zen Cart plugin v1.1.0 for Zen Cart v2.1.0
 
 This is the Paygate plugin for Zen Cart. Please feel free to contact the Payfast support team at
 support@payfast.help should you require any assistance.
@@ -10,7 +10,7 @@ support@payfast.help should you require any assistance.
 1. **Download the Plugin**
 
     - Visit the [releases page](https://github.com/Paygate/PayWeb_Zen_Cart/releases) and
-      download [includes.zip](https://github.com/Paygate/PayWeb_Zen_Cart/releases/download/v1.0.6/includes.zip)
+      download [includes.zip](https://github.com/Paygate/PayWeb_Zen_Cart/releases/download/v1.1.0/includes.zip)
     - Extract the contents of the provided zip file to your preferred location on your computer. This process will
       create a number of files and folders at the location you chose to extract them to.
 
