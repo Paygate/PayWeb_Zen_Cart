@@ -2,7 +2,7 @@
 /**
  * Module to process a completed checkout
  *
- * Copyright (c) 2024 Payfast (Pty) Ltd
+ * Copyright (c) 2025 Payfast (Pty) Ltd
  *
  * Author: App Inlet (Pty) Ltd
  *
@@ -75,7 +75,7 @@ if (isset($_POST) && isset($_POST['PAY_REQUEST_ID'])) {
         $processThisOrder = false;
 
         $validRedirectMethod = !$pw3->getUseipn();
-        $validNotifyMethod   = isset($_GET['uuid']) && $pw3->getUseipn();
+        $validNotifyMethod   = isset($_POST['RESULT_CODE']) && !empty($_POST['RESULT_CODE']) && $pw3->getUseipn();
 
         if ($validRedirectMethod || $validNotifyMethod) {
             $processThisOrder = true;

@@ -1,5 +1,13 @@
 # Changelog
 
+## [[v1.1.0]](https://github.com/Paygate/PayWeb_Zen_Cart/releases/tag/v1.1.0)
+
+### Added
+
+- Updated to the Payfast Common Library v1.4.0 for improved payment processing.
+- Updated to PHP 8.2 for enhanced performance and compatibility.
+- Code standards for better security and maintainability.
+
 ## [[v1.0.6]](https://github.com/Paygate/PayWeb_Zen_Cart/releases/tag/v1.0.6)
 
 ### Fixed
