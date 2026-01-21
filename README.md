@@ -22,7 +22,7 @@ support@payfast.help should you require any assistance.
 3. **Configure the Plugin**
 
     - Navigate to **Admin > Modules > Payment** in the **Admin Tools.**
-    - Locate and click **Secure payment using Paygate**.
+    - Locate and click **Paygate**.
     - Click the **+ Install Module** button to install and activate the module.
     - Enter the required values and click the **Update** button to save your settings.
 
